@@ -1,9 +1,11 @@
 express  = require('express'),
 parser   = require('body-parser');
+var cors = require('cors')
 
 // Setup express
 var app = express();
 app.use(parser.json());
+app.use(cors());
 app.use(parser.urlencoded({ extended: true }));
 app.set('port', process.env.PORT || 5000);
 

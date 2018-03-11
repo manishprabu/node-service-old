@@ -337,15 +337,15 @@ app.post('/person/add', function (req, res) {
 });
 
 
-app.post('/person/edit/:id', function (req, res) {
-	var id = req.params.id, response = [];
-
+app.post('/person/edit', function (req, res) {
+	var response = [];
 	if (
+		typeof req.body.id !== 'undefined' &&
 		typeof req.body.name !== 'undefined' &&
 		typeof req.body.plannerId !== 'undefined' &&
 		typeof req.body.team !== 'undefined'
 	) {
-		var name = req.body.name, plannerId = req.body.plannerId, team = req.body.team;
+		var id = req.body.id,name = req.body.name, plannerId = req.body.plannerId, team = req.body.team;
 
 		connection.query('UPDATE person SET name = ?, planner_id= ?, team = ? WHERE id = ?',
 			[name, plannerId, team, id],
@@ -364,6 +364,9 @@ app.post('/person/edit/:id', function (req, res) {
 					res.status(400).send(err);
 				}
 			});
+			connection.on('error', function(err) {
+				console.log("[mysql error]",err);
+			  });
 
 	} else {
 		response.push({ 'result': 'error', 'msg': 'Please fill required details' });
@@ -397,7 +400,7 @@ app.delete('/person/delete/:id', function (req, res) {
 // Equipment
 
 app.get('/equipments', function (req, res) {
-	var query = 'SELECT equipment.name AS `equipment_name`, equipment.equipment_no AS `equipment_no`,equipment.line_id AS `line_id`,equipment.person_id AS `person_id`,line.name AS `line_name`,person.name As `person_name`,person.planner_id As `planner_id`,person.team As `team`FROM service.equipment JOIN line on line.id = equipment.line_id JOIN person on person.id = equipment.person_id';
+	var query = 'SELECT equipment.name AS `equipment_name`, equipment.id AS `equipment_id`,equipment.equipment_no AS `equipment_no`,equipment.line_id AS `line_id`,equipment.person_id AS `person_id`,line.name AS `line_name`,person.name As `person_name`,person.planner_id As `planner_id`,person.team As `team`FROM service.equipment JOIN line on line.id = equipment.line_id JOIN person on person.id = equipment.person_id';
 	connection.query(query, function (err, rows, fields) {
 		if (!err) {
 			var response = [];
@@ -478,16 +481,16 @@ app.post('/equipment/add', function (req, res) {
 });
 
 
-app.post('/equipment/edit/:id', function (req, res) {
-	var id = req.params.id, response = [];
+app.post('/equipment/edit/', function (req, res) {
 
 	if (
+		typeof req.body.id !== 'undefined' &&
 		typeof req.body.name !== 'undefined' &&
 		typeof req.body.equipmentNo !== 'undefined' &&
 		typeof req.body.lineId !== 'undefined' &&
 		typeof req.body.personId !== 'undefined'
 	) {
-		var name = req.body.name, equipmentNo = req.body.equipmentNo, lineId = req.body.lineId, personId = req.body.personId;
+		var id=req.body.id, name = req.body.name, equipmentNo = req.body.equipmentNo, lineId = req.body.lineId, personId = req.body.personId;
 
 		connection.query('UPDATE equipment SET name = ?, equipment_no= ?, line_id = ?, person_id = ? WHERE id = ?',
 			[name, equipmentNo, lineId, personId, id],
