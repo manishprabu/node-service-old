@@ -482,7 +482,7 @@ app.post('/equipment/add', function (req, res) {
 
 
 app.post('/equipment/edit/', function (req, res) {
-
+	var response = [];
 	if (
 		typeof req.body.id !== 'undefined' &&
 		typeof req.body.name !== 'undefined' &&
@@ -538,6 +538,145 @@ app.delete('/equipment/delete/:id', function (req, res) {
 	});
 });
 
+// Daily report
+app.get('/dailyreports', function (req, res) {
+	var query = 'SELECT daily_report.id AS `daily_report_id`,daily_report.shift AS `shift`, daily_report.created_date AS `daily_report_created_date`,daily_report.modified_date AS `daily_report_modified_date`,daily_report.line_id AS `line_id`,daily_report.break_down_start,daily_report.break_down_finish,daily_report.machine_down_start,daily_report.machine_down_finish,daily_report.problem,daily_report.reason,daily_report.action_taken,daily_report.counter_messure,daily_report.cm_status,daily_report.completed_Date,daily_report.charges,daily_report.equipment_id AS `equipment_id`,line.name AS `line_name`,equipment.name As `equipment_name`,equipment.person_id As `equipment_person_id` FROM service.daily_report JOIN line on line.id = daily_report.line_id JOIN equipment on equipment.id = daily_report.equipment_id;';
+	connection.query(query, function (err, rows, fields) {
+		if (!err) {
+			var response = [];
+			res.setHeader('Content-Type', 'application/json');
+			if (rows.length != 0) {
+				response.push({ 'status': 'success', 'data': JSON.stringify(rows) })
+				res.status(200).send(response);
+			} else {
+				//response.push({'msg' : 'No Result Found'});//
+				res.status(200).send(JSON.stringify({ 'status': 'failure', 'message': 'No Result Found' }));
+			}
+
+		} else {
+			res.status(400).send(err);
+		}
+	});
+});
+
+app.post('/dailyreport/add/', function (req, res) {
+	var response = [];
+	if (
+		typeof req.body.createdDate !== 'undefined' &&
+		typeof req.body.lineId !== 'undefined' &&
+		typeof req.body.equipmentId !== 'undefined' &&
+		typeof req.body.breakDownStart !== 'undefined' &&
+		typeof req.body.breakDownFinish !== 'undefined' &&
+		typeof req.body.machineDownStart !== 'undefined' &&
+		typeof req.body.machineDownFinish !== 'undefined' &&
+		typeof req.body.problem !== 'undefined' &&
+		typeof req.body.reason !== 'undefined' &&
+		typeof req.body.actionTaken !== 'undefined' &&
+		typeof req.body.counterMessure !== 'undefined' &&
+		typeof req.body.cmStatus !== 'undefined' &&
+		typeof req.body.completedDate !== 'undefined' &&
+		typeof req.body.charges !== 'undefined'
+	) {
+		var createdDate = req.body.createdDate,
+		 shift = req.body.shift,
+		 lineId = req.body.lineId,
+		 equipmentId = req.body.equipmentId,
+		 breakDownStart = req.body.breakDownStart,
+		 breakDownFinish = req.body.breakDownFinish,
+		 machineDownStart = req.body.machineDownStart,
+		 machineDownStart =  req.body.machineDownStart,
+		 machineDownFinish =  req.body.machineDownFinish,
+		 problem =  req.body.problem,
+		 reason =  req.body.reason,
+		 actionTaken = req.body.actionTaken,
+		 counterMessure = req.body.counterMessure,
+		 cmStatus = req.body.cmStatus,
+		 completedDate = req.body.completedDate,
+		 charges = req.body.charges;
+
+		 connection.query('INSERT INTO daily_report (created_date,shift,line_id,equipment_id,break_down_start,break_down_finish,machine_down_start,machine_down_finish,problem,reason,action_taken,counter_messure,cm_status,completed_date,charges) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+		 [createdDate,shift, lineId,equipmentId, breakDownStart, breakDownFinish,machineDownStart, machineDownFinish,problem,reason, actionTaken, counterMessure, cmStatus, completedDate, charges],
+		 function (err, result) {
+			 if (!err) {
+
+				 if (result.affectedRows != 0) {
+					 response.push({ 'status': 'success' });
+				 } else {
+					 response.push({ 'status': 'failure' });
+				 }
+
+				 res.setHeader('Content-Type', 'application/json');
+				 res.status(200).send(JSON.stringify(response));
+			 } else {
+				 res.status(400).send(err);
+			 }
+		 });
+	} else {
+		response.push({ 'result': 'error', 'msg': 'Please fill required details' });
+		res.setHeader('Content-Type', 'application/json');
+		res.send(200, JSON.stringify(response));
+	}
+});
+
+app.post('/dailyreport/edit/', function (req, res) {
+	var response = [];
+	if (
+		typeof req.body.id !== 'undefined' &&
+		typeof req.body.createdDate !== 'undefined' &&
+		typeof req.body.lineId !== 'undefined' &&
+		typeof req.body.equipmentId !== 'undefined' &&
+		typeof req.body.breakDownStart !== 'undefined' &&
+		typeof req.body.breakDownFinish !== 'undefined' &&
+		typeof req.body.machineDownStart !== 'undefined' &&
+		typeof req.body.machineDownFinish !== 'undefined' &&
+		typeof req.body.problem !== 'undefined' &&
+		typeof req.body.reason !== 'undefined' &&
+		typeof req.body.actionTaken !== 'undefined' &&
+		typeof req.body.counterMessure !== 'undefined' &&
+		typeof req.body.cmStatus !== 'undefined' &&
+		typeof req.body.completedDate !== 'undefined' &&
+		typeof req.body.charges !== 'undefined'
+	) {
+		var id = req.body.id,
+		 createdDate = req.body.createdDate,
+		 lineId = req.body.lineId,
+		 equipmentId = req.body.equipmentId,
+		 breakDownStart = req.body.breakDownStart,
+		 breakDownFinish = req.body.breakDownFinish,
+		 machineDownStart = req.body.machineDownStart,
+		 machineDownStart =  req.body.machineDownStart,
+		 machineDownFinish =  req.body.machineDownFinish,
+		 problem =  req.body.problem,
+		 reason =  req.body.reason,
+		 actionTaken = req.body.actionTaken,
+		 counterMessure = req.body.counterMessure,
+		 cmStatus = req.body.cmStatus,
+		 completedDate = req.body.completedDate,
+		 charges = req.body.charges;
+
+		 connection.query('UPDATE daily_report SET created_date = ?, line_id = ?, equipment_id = ?, break_down_start = ?, break_down_finish = ?, machine_down_start =?, machine_down_finish=?, problem = ?, reason =? ,action_taken =? ,counter_messure =? ,cm_status =? ,completed_date =? ,charges = ? WHERE id = ?',
+		 [createdDate, lineId,equipmentId, breakDownStart, breakDownFinish,machineDownStart, machineDownFinish,problem,reason, actionTaken, counterMessure, cmStatus, completedDate, charges, id],
+		 function (err, result) {
+			 if (!err) {
+
+				 if (result.affectedRows != 0) {
+					 response.push({ 'status': 'success' });
+				 } else {
+					 response.push({ 'status': 'failure' });
+				 }
+
+				 res.setHeader('Content-Type', 'application/json');
+				 res.status(200).send(JSON.stringify(response));
+			 } else {
+				 res.status(400).send(err);
+			 }
+		 });
+	} else {
+		response.push({ 'result': 'error', 'msg': 'Please fill required details' });
+		res.setHeader('Content-Type', 'application/json');
+		res.send(200, JSON.stringify(response));
+	}
+});
 
 // Create server
 http.createServer(app).listen(app.get('port'), function () {

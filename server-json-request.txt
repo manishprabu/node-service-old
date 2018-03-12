@@ -1,0 +1,27 @@
+The following service(s) have been created in your project: mysql.
+
+       Username: userX7L
+       Password: 2j5JbGCqkE4CWca0
+  Database Name: sampledb
+ Connection URL: mysql://mysql:3306/
+
+
+
+ADD DAILY REPORT
+
+{
+  "createdDate" :  "2018-03-11",
+  "lineId" : 1,
+  "equipmentId" : 1,
+  "breakDownStart" : 20.10,
+  "breakDownFinish" : 20.20,
+  "machineDownStart" : 20.30,
+  "machineDownFinish" : 20.40,
+  "problem" : "TEST PROBLEM",
+  "reason" : "TEST REASON",
+  "actionTaken" : "TEST ACTION TAKEN",
+  "counterMessure" : "TEST COUNTER MESSURE",
+  "cmStatus" : "TEST",
+  "completedDate" : "2018-03-11",
+  "charges" : "TEST123"
+}
