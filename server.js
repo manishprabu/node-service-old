@@ -559,6 +559,28 @@ app.get('/dailyreports', function (req, res) {
 	});
 });
 
+// Daily report
+app.get('/dailyreport/:id', function (req, res) {
+	var id = req.params.id;
+	var query = 'SELECT daily_report.id AS `daily_report_id`,daily_report.shift AS `shift`, daily_report.created_date AS `daily_report_created_date`,daily_report.modified_date AS `daily_report_modified_date`,daily_report.line_id AS `line_id`,daily_report.break_down_start,daily_report.break_down_finish,daily_report.machine_down_start,daily_report.machine_down_finish,daily_report.problem,daily_report.reason,daily_report.action_taken,daily_report.counter_messure,daily_report.cm_status,daily_report.completed_Date,daily_report.charges,daily_report.equipment_id AS `equipment_id`,line.name AS `line_name`,equipment.name As `equipment_name`,equipment.person_id As `equipment_person_id` FROM service.daily_report JOIN line on line.id = daily_report.line_id JOIN equipment on equipment.id = daily_report.equipment_id WHERE daily_report.report_status = 1 and daily_report.created_user_id = ?;';
+	connection.query(query,[id], function (err, rows, fields) {
+		if (!err) {
+			var response = [];
+			res.setHeader('Content-Type', 'application/json');
+			if (rows.length != 0) {
+				response.push({ 'status': 'success', 'data': JSON.stringify(rows) })
+				res.status(200).send(response);
+			} else {
+				//response.push({'msg' : 'No Result Found'});//
+				res.status(200).send(JSON.stringify({ 'status': 'failure', 'message': 'No Result Found' }));
+			}
+
+		} else {
+			res.status(400).send(err);
+		}
+	});
+});
+
 app.post('/dailyreport/add/', function (req, res) {
 	var response = [];
 	if (
@@ -593,9 +615,10 @@ app.post('/dailyreport/add/', function (req, res) {
 		 cmStatus = req.body.cmStatus,
 		 completedDate = req.body.completedDate,
 		 charges = req.body.charges;
+		 userId = req.body.userId;
 
-		 connection.query('INSERT INTO daily_report (created_date,shift,line_id,equipment_id,break_down_start,break_down_finish,machine_down_start,machine_down_finish,problem,reason,action_taken,counter_messure,cm_status,completed_date,charges) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-		 [createdDate,shift, lineId,equipmentId, breakDownStart, breakDownFinish,machineDownStart, machineDownFinish,problem,reason, actionTaken, counterMessure, cmStatus, completedDate, charges],
+		 connection.query('INSERT INTO daily_report (created_date,shift,line_id,equipment_id,break_down_start,break_down_finish,machine_down_start,machine_down_finish,problem,reason,action_taken,counter_messure,cm_status,completed_date,charges,user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+		 [createdDate,shift, lineId,equipmentId, breakDownStart, breakDownFinish,machineDownStart, machineDownFinish,problem,reason, actionTaken, counterMessure, cmStatus, completedDate, charges,userId],
 		 function (err, result) {
 			 if (!err) {
 
