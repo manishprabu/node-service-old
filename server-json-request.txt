@@ -6,6 +6,14 @@ The following service(s) have been created in your project: mysql.
  Connection URL: mysql://mysql:3306/
 
 
+Equipment 
+Add :
+{
+  "name" : "ITGA1234",
+  "equipmentNo" : 32154545,
+  "lineId" : 2,
+  "personId" : 1
+}
 
 ADD DAILY REPORT
 
@@ -23,5 +31,6 @@ ADD DAILY REPORT
   "counterMessure" : "TEST COUNTER MESSURE",
   "cmStatus" : "TEST",
   "completedDate" : "2018-03-11",
-  "charges" : "TEST123"
+  "charges" : "TEST123",
+  "createdUserId" : 2
 }

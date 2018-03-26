@@ -1,13 +1,23 @@
 express  = require('express'),
 parser   = require('body-parser');
 var cors = require('cors')
-
+connection = require('./dbconn');
+var routes = require('./routes/index');
+var lines = require('./routes/line');
+var persons = require('./routes/person');
+var equipments = require('./routes/equipment');
+var dailyReports = require('./routes/dailyReport');
 // Setup express
 var app = express();
 app.use(parser.json());
 app.use(cors());
-app.use(parser.urlencoded({ extended: true }));
+app.use(parser.urlencoded({ extended: false }));
 app.set('port', process.env.PORT || 5000);
+app.use('/', routes);
+app.use('/line', lines);
+app.use('/person', persons);
+app.use('/equipment', equipments);
+app.use('/dailyreport', dailyReports);
 
 // Add headers
 app.use(function (req, res, next) {	
@@ -28,5 +38,6 @@ app.use(function (req, res, next) {
     // Pass to next layer of middleware
     next();
 });
+
 
 module.exports = app;
