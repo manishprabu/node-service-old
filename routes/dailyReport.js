@@ -22,24 +22,30 @@ router.get('/dailyreports', function (req, res) {
 });
 
 // Daily report
-router.get('/:id', function (req, res) {
-    var id = req.params.id;
-    dailyReport.getDailyReportById(id, function (err, rows) {
-        if (!err) {
-            var response = [];
-            res.setHeader('Content-Type', 'application/json');
-            if (rows.length != 0) {
-                response.push({ 'status': 'success', 'data': rows })
-                res.status(200).send(response);
+router.post('/single', function (req, res) {
+    if (typeof req.body.id !== 'undefined' &&
+    typeof req.body.dateVal !== 'undefined'){
+        dailyReport.getDailyReportById(req.body.id,req.body.dateVal, function (err, rows) {
+            if (!err) {
+                var response = [];
+                res.setHeader('Content-Type', 'application/json');
+                if (rows.length != 0) {
+                    response.push({ 'status': 'success', 'data': rows })
+                    res.status(200).send(response);
+                } else {
+                    //response.push({'msg' : 'No Result Found'});//
+                    res.status(200).send(JSON.stringify({ 'status': 'failure', 'message': 'No Result Found' }));
+                }
+    
             } else {
-                //response.push({'msg' : 'No Result Found'});//
-                res.status(200).send(JSON.stringify({ 'status': 'failure', 'message': 'No Result Found' }));
+                res.status(400).send(err);
             }
-
-        } else {
-            res.status(400).send(err);
-        }
-    });
+        });
+    } else {
+        response.push({ 'result': 'error', 'msg': 'Please fill required details' });
+        res.setHeader('Content-Type', 'application/json');
+        res.send(200, JSON.stringify(response));
+    }
 });
 
 router.post('/update/status', function (req, res) {
