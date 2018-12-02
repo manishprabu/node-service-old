@@ -1,9 +1,9 @@
 mysql    = require('mysql')
 
 var connection = mysql.createConnection({
-    host     : 'localhost',
+    host     : 'catalog-api-master.cani708p659e.us-east-2.rds.amazonaws.com',
     user     : 'root',
-    password : '',
+    password : 'mani8126',
     database : 'service'
   });
   try {
