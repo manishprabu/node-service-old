@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var Equipment = require('../models/Equipment');
+var Equipment = require('../models/equipment');
 
 
 router.get('/equipments', function (req, res) {
@@ -92,7 +92,7 @@ router.post('/edit', function (req, res) {
 router.delete('/delete/:id', function (req, res) {
 	var id = req.params.id;
 
-	Equipment.deleteEquipment(req.body, function (err, result) {
+	Equipment.deleteEquipment(id, function (err, result) {
 		if (!err) {
             var response = [];
 

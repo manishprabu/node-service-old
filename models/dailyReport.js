@@ -39,5 +39,9 @@ var DailyReport = {
         var query = 'UPDATE daily_report SET shift = ?, line_id = ?, equipment_id = ?, break_down_start = ?, break_down_finish = ?, machine_down_start =?, machine_down_finish=?, problem = ?, reason =? ,action_taken =? ,counter_messure =? ,cm_status =? ,completed_date =? ,charges = ? WHERE id = ?';
         return db.query(query, [report.shift, report.lineId, report.equipmentId, report.breakDownStart, report.breakDownFinish, report.machineDownStart, report.machineDownFinish, report.problem, report.reason, report.actionTaken, report.counterMessure, report.cmStatus, report.completedDate, report.charges, report.id], callback);
     },
+    getAllSubmittedReport: function (date, callback) {
+        var query = 'SELECT * from service.daily_report where report_status = 2 and created_date = ?';
+        return db.query(query,[date], callback);
+    }
 };
 module.exports = DailyReport;

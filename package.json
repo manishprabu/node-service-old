@@ -10,9 +10,12 @@
   "author": "Manikandan",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.377.0",
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "express": "^4.16.2",
+    "json2xls": "^0.1.2",
+    "mailcomposer": "^4.0.2",
     "mysql": "^2.15.0"
   },
   "devDependencies": {

@@ -1,6 +1,15 @@
-var express = require('express');
-var router = express.Router();
-var dailyReport = require('../models/dailyReport');
+let express = require('express');
+let router = express.Router();
+let dailyReport = require('../models/dailyReport');
+let json2xls = require('json2xls');
+let fs = require('fs');
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3();
+const ses = new AWS.SES({
+    region: 'us-east-1'
+});
+let mailcomposer = require('mailcomposer');
+
 
 // Daily report
 router.get('/dailyreports', function (req, res) {
@@ -9,11 +18,11 @@ router.get('/dailyreports', function (req, res) {
             var response = [];
             res.setHeader('Content-Type', 'application/json');
             if (rows.length != 0) {
-                response.push({ 'status': 'success', 'data': rows })
+                response.push({'status': 'success', 'data': rows})
                 res.status(200).send(response);
             } else {
                 //response.push({'msg' : 'No Result Found'});//
-                res.status(200).send(JSON.stringify({ 'status': 'failure', 'message': 'No Result Found' }));
+                res.status(200).send(JSON.stringify({'status': 'failure', 'message': 'No Result Found'}));
             }
         } else {
             res.status(400).send(err);
@@ -24,26 +33,26 @@ router.get('/dailyreports', function (req, res) {
 // Daily report
 router.post('/single', function (req, res) {
     if (typeof req.body.id !== 'undefined' &&
-    typeof req.body.dateVal !== 'undefined'){
+        typeof req.body.dateVal !== 'undefined') {
         var callingBy = "user";
-        dailyReport.getDailyReportById(req.body.id,req.body.dateVal,callingBy, function (err, rows) {
+        dailyReport.getDailyReportById(req.body.id, req.body.dateVal, callingBy, function (err, rows) {
             if (!err) {
                 var response = [];
                 res.setHeader('Content-Type', 'application/json');
                 if (rows.length != 0) {
-                    response.push({ 'status': 'success', 'data': rows })
+                    response.push({'status': 'success', 'data': rows})
                     res.status(200).send(response);
                 } else {
                     //response.push({'msg' : 'No Result Found'});//
-                    res.status(200).send(JSON.stringify({ 'status': 'failure', 'message': 'No Result Found' }));
+                    res.status(200).send(JSON.stringify({'status': 'failure', 'message': 'No Result Found'}));
                 }
-    
+
             } else {
                 res.status(400).send(err);
             }
         });
     } else {
-        response.push({ 'result': 'error', 'msg': 'Please fill required details' });
+        response.push({'result': 'error', 'msg': 'Please fill required details'});
         res.setHeader('Content-Type', 'application/json');
         res.send(200, JSON.stringify(response));
     }
@@ -51,50 +60,50 @@ router.post('/single', function (req, res) {
 
 
 router.post('/getSubmittedReports', function (req, res) {
-    if (typeof req.body.dateVal !== 'undefined'){
+    if (typeof req.body.dateVal !== 'undefined') {
         var callingBy = "admin";
-        dailyReport.getDailyReportById(null,req.body.dateVal,callingBy, function (err, rows) {
+        dailyReport.getDailyReportById(null, req.body.dateVal, callingBy, function (err, rows) {
             if (!err) {
                 var response = [];
                 res.setHeader('Content-Type', 'application/json');
                 if (rows.length != 0) {
-                    response.push({ 'status': 'success', 'data': rows })
+                    response.push({'status': 'success', 'data': rows})
                     res.status(200).send(response);
                 } else {
-                    res.status(200).send(JSON.stringify({ 'status': 'failure', 'message': 'No Result Found' }));
+                    res.status(200).send(JSON.stringify({'status': 'failure', 'message': 'No Result Found'}));
                 }
-    
+
             } else {
                 res.status(400).send(err);
             }
         });
     } else {
-        response.push({ 'result': 'error', 'msg': 'Please fill required details' });
+        response.push({'result': 'error', 'msg': 'Please fill required details'});
         res.setHeader('Content-Type', 'application/json');
         res.send(200, JSON.stringify(response));
     }
 });
 
 router.post('/getAll', function (req, res) {
-    if (typeof req.body.dateVal !== 'undefined'){
-        dailyReport.getDailyReportById(req.body.id,req.body.dateVal, function (err, rows) {
+    if (typeof req.body.dateVal !== 'undefined') {
+        dailyReport.getDailyReportById(req.body.id, req.body.dateVal, function (err, rows) {
             if (!err) {
                 var response = [];
                 res.setHeader('Content-Type', 'application/json');
                 if (rows.length != 0) {
-                    response.push({ 'status': 'success', 'data': rows })
+                    response.push({'status': 'success', 'data': rows})
                     res.status(200).send(response);
                 } else {
                     //response.push({'msg' : 'No Result Found'});//
-                    res.status(200).send(JSON.stringify({ 'status': 'failure', 'message': 'No Result Found' }));
+                    res.status(200).send(JSON.stringify({'status': 'failure', 'message': 'No Result Found'}));
                 }
-    
+
             } else {
                 res.status(400).send(err);
             }
         });
     } else {
-        response.push({ 'result': 'error', 'msg': 'Please fill required details' });
+        response.push({'result': 'error', 'msg': 'Please fill required details'});
         res.setHeader('Content-Type', 'application/json');
         res.send(200, JSON.stringify(response));
     }
@@ -107,9 +116,9 @@ router.post('/update/status', function (req, res) {
         dailyReport.updateReportStatus(req.body, function (err, result) {
             if (!err) {
                 if (result.affectedRows != 0) {
-                    response.push({ 'status': 'success' });
+                    response.push({'status': 'success'});
                 } else {
-                    response.push({ 'status': 'failure' });
+                    response.push({'status': 'failure'});
                 }
                 res.setHeader('Content-Type', 'application/json');
                 res.status(200).send(JSON.stringify(response));
@@ -118,7 +127,7 @@ router.post('/update/status', function (req, res) {
             }
         });
     } else {
-        response.push({ 'result': 'error', 'msg': 'Please fill required details' });
+        response.push({'result': 'error', 'msg': 'Please fill required details'});
         res.setHeader('Content-Type', 'application/json');
         res.send(200, JSON.stringify(response));
     }
@@ -165,9 +174,9 @@ router.post('/add', function (req, res) {
             if (!err) {
 
                 if (result.affectedRows != 0) {
-                    response.push({ 'status': 'success' });
+                    response.push({'status': 'success'});
                 } else {
-                    response.push({ 'status': 'failure' });
+                    response.push({'status': 'failure'});
                 }
 
                 res.setHeader('Content-Type', 'application/json');
@@ -177,7 +186,7 @@ router.post('/add', function (req, res) {
             }
         });
     } else {
-        response.push({ 'result': 'error', 'msg': 'Please fill required details' });
+        response.push({'result': 'error', 'msg': 'Please fill required details'});
         res.setHeader('Content-Type', 'application/json');
         res.send(200, JSON.stringify(response));
     }
@@ -222,9 +231,9 @@ router.post('/edit', function (req, res) {
             if (!err) {
 
                 if (result.affectedRows != 0) {
-                    response.push({ 'status': 'success' });
+                    response.push({'status': 'success'});
                 } else {
-                    response.push({ 'status': 'failure' });
+                    response.push({'status': 'failure'});
                 }
 
                 res.setHeader('Content-Type', 'application/json');
@@ -234,10 +243,93 @@ router.post('/edit', function (req, res) {
             }
         });
     } else {
-        response.push({ 'result': 'error', 'msg': 'Please fill required details' });
+        response.push({'result': 'error', 'msg': 'Please fill required details'});
         res.setHeader('Content-Type', 'application/json');
         res.send(200, JSON.stringify(response));
     }
 });
+
+router.post('/processReports', function (req, res) {
+        let response = [];
+        if (typeof req.body.dateVal !== 'undefined') {
+            dailyReport.getAllSubmittedReport(req.body.dateVal, function (err, rows) {
+                if (!err) {
+                    res.setHeader('Content-Type', 'application/json');
+                    if (rows.length !== 0) {
+                        let d = new Date();
+                        let fileName = d.getDate() + "-" + d.getMonth() + "-" + d.getFullYear() + "-report.xlsx";
+                        try {
+                            let xls = json2xls(rows);
+
+                            fs.writeFileSync('./daily-reports/' + fileName, xls, 'binary');
+                            // push file to s3 bucket
+                            fs.readFile('./daily-reports/' + fileName, (err, data) => {
+                                if (err) throw err;
+                                const params = {
+                                    Bucket: 'daily-report-bucket',
+                                    Key: fileName,
+                                    Body: data
+                                };
+                                s3.upload(params, function (s3Err, data) {
+                                    if (s3Err) {
+                                        res.status(200).send(JSON.stringify({
+                                            'status': 'failure',
+                                            'message': s3Err.message
+                                        }));
+                                    }
+                                });
+                            })
+                        } catch (err) {
+                            res.status(200).send(JSON.stringify({'status': 'failure', 'message': err.message}));
+                        }
+                        try {
+                            sendMail('./daily-reports/' + fileName);
+                        } catch (err) {
+                            res.status(200).send(JSON.stringify({'status': 'failure', 'message': err.message}));
+                        }
+                        response.push({
+                            'status': 'success', 'data': 'Today daily report has been created successfully.' +
+                            'Email will be sent shortly'
+                        });
+                        res.status(200).send(response);
+                    } else {
+                        //response.push({'msg' : 'No Result Found'});//
+                        res.status(200).send(JSON.stringify({'status': 'failure', 'message': 'No Result Found'}));
+                    }
+
+                } else {
+                    res.status(400).send(err);
+                }
+            });
+        } else {
+            response.push({'result': 'error', 'msg': 'Please fill required details'});
+            res.setHeader('Content-Type', 'application/json');
+            res.send(200, JSON.stringify(response));
+        }
+    }
+);
+
+async function sendMail(filePath) {
+
+    const mail = mailcomposer({
+        from: 'manishprabu85@gmail.com',
+        replyTo: 'manishprabu85@gmail.com',
+        to: 'manishprabu58@gmail.com',
+        subject: 'Sample SES message with attachment',
+        text: 'Hey folks, this is a test message from SES with an attachment.',
+        attachments: [
+            {
+                path: filePath
+            },
+        ],
+    });
+
+    mail.build(async function (err, message) {
+        if (err) {
+            console.log(`Error sending raw email: ${err}`);
+        }
+        await ses.sendRawEmail({RawMessage: {Data: message}}).promise();
+    });
+}
 
 module.exports = router;

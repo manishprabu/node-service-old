@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var Line = require('../models/Line');
+var Line = require('../models/line');
 
 router.get('/lines', function (req, res, next) {
 

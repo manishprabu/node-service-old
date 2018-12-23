@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var Line = require('../models/ProcessReport');
+var Line = require('../models/processReport');
 
 router.get('/', function (req, res, next) {
 

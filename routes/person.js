@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var Person = require('../models/Person');
+var Person = require('../models/person');
 
 router.get('/persons', function (req, res) {
 	Person.getAllPersons(function (err, rows) {
