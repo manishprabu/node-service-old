@@ -4,9 +4,14 @@ let dailyReport = require('../models/dailyReport');
 let json2xls = require('json2xls');
 let fs = require('fs');
 const AWS = require('aws-sdk');
-const s3 = new AWS.S3();
+const s3 = new AWS.S3({
+    accessKeyId: 'AKIAIHBHSKJRCW5BA4JQ',
+    secretAccessKey: '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'
+});
 const ses = new AWS.SES({
-    region: 'us-east-1'
+    region: 'us-east-1',
+    accessKeyId: 'AKIAIHBHSKJRCW5BA4JQ',
+    secretAccessKey: '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'
 });
 let mailcomposer = require('mailcomposer');
 
@@ -252,7 +257,7 @@ router.post('/edit', function (req, res) {
 router.post('/processReports', function (req, res) {
         let response = [];
         if (typeof req.body.dateVal !== 'undefined') {
-            dailyReport.getAllSubmittedReport(req.body.dateVal, function (err, rows) {
+            dailyReport.getAllSubmittedReport(req.body.dateVal, async function (err, rows) {
                 if (!err) {
                     res.setHeader('Content-Type', 'application/json');
                     if (rows.length !== 0) {
@@ -272,18 +277,18 @@ router.post('/processReports', function (req, res) {
                                 };
                                 s3.upload(params, function (s3Err, data) {
                                     if (s3Err) {
-                                        res.status(200).send(JSON.stringify({
-                                            'status': 'failure',
-                                            'message': s3Err.message
-                                        }));
+                                        console.log(`Unable to upload file into s3 bucket Error : ${s3Err}`);
+                                        throw(s3Err);
                                     }
+                                    console.log(`${fileName}'has been uploaded to s3 successfully.`);
                                 });
                             })
                         } catch (err) {
                             res.status(200).send(JSON.stringify({'status': 'failure', 'message': err.message}));
                         }
                         try {
-                            sendMail('./daily-reports/' + fileName);
+                            await sendMail('./daily-reports/' + fileName);
+                            console.log(`Mail has been sent successfully.`);
                         } catch (err) {
                             res.status(200).send(JSON.stringify({'status': 'failure', 'message': err.message}));
                         }
