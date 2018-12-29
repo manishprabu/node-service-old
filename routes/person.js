@@ -11,8 +11,8 @@ router.get('/persons', function (req, res) {
                 response.push({ 'status': 'success', 'data': rows })
                 res.status(200).send(response);
             } else {
-                //response.push({'msg' : 'No Result Found'});//
-                res.status(200).send(JSON.stringify({ 'status': 'failure', 'message': 'No Result Found' }));
+                response.push({ 'status': 'failure', 'message': 'No Result Found' });//
+                res.status(200).send(response);
             }
         } else {
             res.status(400).send(err);

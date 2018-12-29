@@ -11,7 +11,7 @@ app.post('/hyundai/login', function (req,res) {
             if (!err){
                 var response = [];
               res.setHeader('Content-Type', 'application/json');
-              if (rows.length != 0) {
+              if (rows.length !== 0) {
                   response.push({'status' : 'success', 'message' : 'login successful', 'data' : JSON.stringify(rows)});
                   res.status(200).send(response);
               } else {

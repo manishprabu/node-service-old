@@ -2,18 +2,18 @@ var express = require('express');
 var router = express.Router();
 var Line = require('../models/line');
 
-router.get('/lines', function (req, res, next) {
+router.get('/lines', async function (req, res, next) {
 
-    Line.getAllLines(function (err, rows) {
+    await Line.getAllLines(function (err, rows) {
         if (!err) {
             var response = [];
             res.setHeader('Content-Type', 'application/json');
             if (rows.length != 0) {
-                response.push({ 'status': 'success', 'data': rows })
+                response.push({ 'status': 'success', 'data': rows });
                 res.status(200).send(response);
             } else {
-                //response.push({'msg' : 'No Result Found'});//
-                res.status(200).send(JSON.stringify({ 'status': 'failure', 'message': 'No Result Found' }));
+                response.push({ 'status': 'failure', 'message': 'No Result Found' });//
+                res.status(200).send(response);
             }
         } else {
             res.status(400).send(err);

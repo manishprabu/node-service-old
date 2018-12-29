@@ -1,6 +1,7 @@
 // Basic Setup
 var http = require('http'),
 app = require('./app');
+var db = require('./dbconn');
 
 app.post('/hyundai/login', function (req, res) {
 	if (
@@ -9,11 +10,12 @@ app.post('/hyundai/login', function (req, res) {
 	) {
 		var username = req.body.username, password = req.body.password;
 
-		connection.query('SELECT * from user where user_name = ? and password = ?', [username, password], function (err, rows, fields) {
+        db.query('SELECT * from user where user_name = ? and password = ?', [username, password], function (err, rows, fields) {
 			if (!err) {
 				var response = [];
 				res.setHeader('Content-Type', 'application/json');
-				if (rows.length != 0) {
+				if (rows.length !== 0) {
+					console.log(rows);
 					response.push({ 'status': 'success', 'message': 'login successful', 'data': JSON.stringify(rows) });
 					res.status(200).send(response);
 				} else {

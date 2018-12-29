@@ -26,8 +26,8 @@ router.get('/dailyreports', function (req, res) {
                 response.push({'status': 'success', 'data': rows})
                 res.status(200).send(response);
             } else {
-                //response.push({'msg' : 'No Result Found'});//
-                res.status(200).send(JSON.stringify({'status': 'failure', 'message': 'No Result Found'}));
+                response.push({'status': 'failure', 'message': 'No Result Found'});//
+                res.status(200).send(response);
             }
         } else {
             res.status(400).send(err);
@@ -40,7 +40,7 @@ router.post('/single', function (req, res) {
     if (typeof req.body.id !== 'undefined' &&
         typeof req.body.dateVal !== 'undefined') {
         var callingBy = "user";
-        dailyReport.getDailyReportById(req.body.id, req.body.dateVal, callingBy, function (err, rows) {
+        dailyReport.getDailyReportById(req.body.id, req.body.dateVal,null, callingBy, function (err, rows) {
             if (!err) {
                 var response = [];
                 res.setHeader('Content-Type', 'application/json');
@@ -48,8 +48,8 @@ router.post('/single', function (req, res) {
                     response.push({'status': 'success', 'data': rows})
                     res.status(200).send(response);
                 } else {
-                    //response.push({'msg' : 'No Result Found'});//
-                    res.status(200).send(JSON.stringify({'status': 'failure', 'message': 'No Result Found'}));
+                    response.push({'status': 'failure', 'message': 'No Result Found'});//
+                    res.status(200).send(response);
                 }
 
             } else {
@@ -65,17 +65,18 @@ router.post('/single', function (req, res) {
 
 
 router.post('/getSubmittedReports', function (req, res) {
-    if (typeof req.body.dateVal !== 'undefined') {
+    if (typeof req.body.dateVal !== 'undefined' && typeof req.body.status !== 'undefined') {
         var callingBy = "admin";
-        dailyReport.getDailyReportById(null, req.body.dateVal, callingBy, function (err, rows) {
+        var response = [];
+        dailyReport.getDailyReportById(null, req.body.dateVal,req.body.status, callingBy, function (err, rows) {
             if (!err) {
-                var response = [];
                 res.setHeader('Content-Type', 'application/json');
                 if (rows.length != 0) {
                     response.push({'status': 'success', 'data': rows})
                     res.status(200).send(response);
                 } else {
-                    res.status(200).send(JSON.stringify({'status': 'failure', 'message': 'No Result Found'}));
+                    response.push({'status': 'failure', 'message': 'No Result Found'});
+                    res.status(200).send(response);
                 }
 
             } else {
@@ -91,7 +92,7 @@ router.post('/getSubmittedReports', function (req, res) {
 
 router.post('/getAll', function (req, res) {
     if (typeof req.body.dateVal !== 'undefined') {
-        dailyReport.getDailyReportById(req.body.id, req.body.dateVal, function (err, rows) {
+        dailyReport.getDailyReportById(req.body.id, req.body.dateVal, null, function (err, rows) {
             if (!err) {
                 var response = [];
                 res.setHeader('Content-Type', 'application/json');
@@ -99,8 +100,8 @@ router.post('/getAll', function (req, res) {
                     response.push({'status': 'success', 'data': rows})
                     res.status(200).send(response);
                 } else {
-                    //response.push({'msg' : 'No Result Found'});//
-                    res.status(200).send(JSON.stringify({'status': 'failure', 'message': 'No Result Found'}));
+                    response.push({'status': 'failure', 'message': 'No Result Found'});//
+                    res.status(200).send(response);
                 }
 
             } else {
@@ -256,11 +257,20 @@ router.post('/edit', function (req, res) {
 
 router.post('/processReports', function (req, res) {
         let response = [];
+        let reportIdArray = [];
         if (typeof req.body.dateVal !== 'undefined') {
-            dailyReport.getAllSubmittedReport(req.body.dateVal, async function (err, rows) {
+            dailyReport.getDailyReportsByDateAndStatus(req.body.dateVal, 2 , async function (err, rows) {
                 if (!err) {
                     res.setHeader('Content-Type', 'application/json');
                     if (rows.length !== 0) {
+                        for(let i=0; i<rows.length; i++){
+                            reportIdArray.push(rows[i].id);
+                        }
+                        let keysCount = reportIdArray.length;
+                        let params = [];
+                        for (let i = 1; i <= keysCount; i++) {
+                            params.push('?');
+                        }
                         let d = new Date();
                         let fileName = d.getDate() + "-" + d.getMonth() + "-" + d.getFullYear() + "-report.xlsx";
                         try {
@@ -289,21 +299,27 @@ router.post('/processReports', function (req, res) {
                         try {
                             await sendMail('./daily-reports/' + fileName);
                             console.log(`Mail has been sent successfully.`);
+                            dailyReport.updateReportStatusWithDate(req.body.dateVal,4, reportIdArray, params, function (err, result){
+                                if (!err) {
+                                    if (result.affectedRows !== 0) {
+                                        response.push({
+                                            'status': 'success', 'data': 'Today daily report has been created successfully.' +
+                                            'Email will be sent shortly'
+                                        });
+                                    } else {
+                                        response.push({'status': 'failure', 'message': err.message});
+                                    }
+                                    res.status(200).send(JSON.stringify(response));
+                                }
+                            });
                         } catch (err) {
                             res.status(200).send(JSON.stringify({'status': 'failure', 'message': err.message}));
                         }
-                        response.push({
-                            'status': 'success', 'data': 'Today daily report has been created successfully.' +
-                            'Email will be sent shortly'
-                        });
-                        res.status(200).send(response);
                     } else {
-                        //response.push({'msg' : 'No Result Found'});//
                         res.status(200).send(JSON.stringify({'status': 'failure', 'message': 'No Result Found'}));
                     }
-
                 } else {
-                    res.status(400).send(err);
+                    res.status(200).send(JSON.stringify({'status': 'failure', 'message': err.message}));
                 }
             });
         } else {

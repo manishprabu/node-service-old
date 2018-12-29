@@ -2,10 +2,8 @@ var db = require('../dbconn');
 
 var Line = {
 
-    getAllLines: function (callback) {
-
-        return db.query("Select * from line", callback);
-
+    getAllLines: async function (callback) {
+        return await db.query("Select * from line", callback);
     },
     getLineById: function (id, callback) {
 

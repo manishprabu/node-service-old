@@ -1,12 +1,17 @@
 mysql    = require('mysql');
 
 var connection = mysql.createConnection({
-    host     : 'catalog-api-master.cani708p659e.us-east-2.rds.amazonaws.com',
-    user     : 'root',
+    host     : 'hyundai-db-instance.cwzsmkxmwszt.us-east-1.rds.amazonaws.com',
+    user     : 'mani',
     port     : 3306,
-    password : 'mani8126',
+    password : 'smilingmani',
     database : 'service',
-    acquireTimeout: 1000000
+    // host     : 'localhost',
+    // user     : 'root',
+    // port     : 3306,
+    // password : 'mani8126',
+    // database : 'service',
+    // acquireTimeout: 1000000
   });
   try {
       connection.connect();
