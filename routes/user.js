@@ -1,9 +1,11 @@
 var express = require('express');
 var router = express.Router();
-var Person = require('../models/person');
+var User = require('../models/user');
+var db = require('../dbconn');
 
-router.get('/persons', function (req, res) {
-	Person.getAllPersons(function (err, rows) {
+router.get('/users', function (req, res) {
+    let con = db.getConnection();
+	User.getAllUsers(con, function (err, rows) {
         if (!err) {
             var response = [];
             res.setHeader('Content-Type', 'application/json');
@@ -21,7 +23,8 @@ router.get('/persons', function (req, res) {
 });
 
 router.post('/add', function (req, res, next) {
-    Person.addPerson(req.body, function (err, result) {
+    let con = db.getConnection();
+    User.addUser(con, req.body, function (err, result) {
         var response = [];
         //console.log(req.body);
         if (!err) {
@@ -41,7 +44,8 @@ router.post('/add', function (req, res, next) {
 });
 
 router.post('/edit', function (req, res) {
-    Person.updatePerson(req.body, function (err, result) {
+    let con = db.getConnection();
+    User.updateUser(con, req.body, function (err, result) {
         var response = [];
         //console.log(req.body);
         if (!err) {
@@ -61,8 +65,9 @@ router.post('/edit', function (req, res) {
 });
 
 router.delete('/delete/:id', function (req, res) {
+    let con = db.getConnection();
     var id = req.params.id;
-    Person.deletePerson(id, function(err,result){
+    User.deleteUser(con, id, function(err,result){
         if (!err) {
             var response = [];
 

@@ -1,22 +1,33 @@
-mysql    = require('mysql');
+const mysql    = require('mysql');
+let dbCon = {
+    getConnection : function () {
+        const db_config = {
+            host: 'hyundai-db-instance.cwzsmkxmwszt.us-east-1.rds.amazonaws.com',
+            user: 'mani',
+            port: 3306,
+            password: 'smilingmani',
+            database: 'service',
+        };
+        let connection = mysql.createConnection(db_config); // Recreate the connection, since
+        // the old one cannot be reused.
+        connection.connect(function(err) {              // The server is either down
+            if(err) {                                     // or restarting (takes a while sometimes).
+                console.log('error when connecting to db:', err);
+                setTimeout(dbCon.getConnection, 5000); // We introduce a delay before attempting to reconnect,
+            }                                     // to avoid a hot loop, and to allow our node script to
+        });                                     // process asynchronous requests in the meantime.
+                                                // If you're also serving http, display a 503 error.
+        connection.on('error', function(err) {
+            console.log('db error', err);
+            if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+                dbCon.getConnection;                         // lost due to either server restart, or a
+            } else {                                      // connnection idle timeout (the wait_timeout
+                throw err;                                  // server variable configures this)
+            }
+        });
+        return connection;
+    }
+};
 
-var connection = mysql.createConnection({
-    host     : 'hyundai-db-instance.cwzsmkxmwszt.us-east-1.rds.amazonaws.com',
-    user     : 'mani',
-    port     : 3306,
-    password : 'smilingmani',
-    database : 'service',
-    // host     : 'localhost',
-    // user     : 'root',
-    // port     : 3306,
-    // password : 'mani8126',
-    // database : 'service',
-    // acquireTimeout: 1000000
-  });
-  try {
-      connection.connect();
-      module.exports = connection;
-      
-  } catch(e) {
-      console.log('Database Connetion failed:' + e);
-  }
+
+module.exports = dbCon;

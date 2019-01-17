@@ -1,10 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var Line = require('../models/line');
-
+var db = require('../dbconn');
 router.get('/lines', async function (req, res, next) {
-
-    await Line.getAllLines(function (err, rows) {
+    let con = db.getConnection();
+    await Line.getAllLines(con, function (err, rows) {
         if (!err) {
             var response = [];
             res.setHeader('Content-Type', 'application/json');
@@ -22,7 +22,8 @@ router.get('/lines', async function (req, res, next) {
 });
 
 router.post('/add', function (req, res, next) {
-    Line.addLine(req.body, function (err, result) {
+    let con = db.getConnection();
+    Line.addLine(con, req.body, function (err, result) {
         var response = [];
         //console.log(req.body);
         if (!err) {
@@ -42,7 +43,8 @@ router.post('/add', function (req, res, next) {
 });
 
 router.post('/edit', function (req, res) {
-    Line.updateLine(req.body, function (err, result) {
+    let con = db.getConnection();
+    Line.updateLine(con, req.body, function (err, result) {
         var response = [];
         //console.log(req.body);
         if (!err) {
@@ -62,8 +64,9 @@ router.post('/edit', function (req, res) {
 });
 
 router.delete('/delete/:id', function (req, res) {
+    let con = db.getConnection();
     var id = req.params.id;
-    Line.deleteLine(id, function(err,result){
+    Line.deleteLine(con, id, function(err,result){
         if (!err) {
             var response = [];
 

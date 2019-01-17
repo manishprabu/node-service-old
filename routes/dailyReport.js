@@ -3,6 +3,7 @@ let router = express.Router();
 let dailyReport = require('../models/dailyReport');
 let json2xls = require('json2xls');
 let fs = require('fs');
+let db = require('../dbconn');
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3({
     accessKeyId: 'AKIAIHBHSKJRCW5BA4JQ',
@@ -18,11 +19,12 @@ let mailcomposer = require('mailcomposer');
 
 // Daily report
 router.get('/dailyreports', function (req, res) {
-    dailyReport.getAllReports(function (err, rows) {
+    let con = db.getConnection();
+    dailyReport.getAllReports(con, function (err, rows) {
         if (!err) {
-            var response = [];
+            let response = [];
             res.setHeader('Content-Type', 'application/json');
-            if (rows.length != 0) {
+            if (rows.length !== 0) {
                 response.push({'status': 'success', 'data': rows})
                 res.status(200).send(response);
             } else {
@@ -37,14 +39,15 @@ router.get('/dailyreports', function (req, res) {
 
 // Daily report
 router.post('/single', function (req, res) {
+    let con = db.getConnection();
     if (typeof req.body.id !== 'undefined' &&
         typeof req.body.dateVal !== 'undefined') {
-        var callingBy = "user";
-        dailyReport.getDailyReportById(req.body.id, req.body.dateVal,null, callingBy, function (err, rows) {
+        let callingBy = "user";
+        dailyReport.getDailyReportById(con, req.body.id, req.body.dateVal,null, callingBy, function (err, rows) {
             if (!err) {
-                var response = [];
+                let response = [];
                 res.setHeader('Content-Type', 'application/json');
-                if (rows.length != 0) {
+                if (rows.length !== 0) {
                     response.push({'status': 'success', 'data': rows})
                     res.status(200).send(response);
                 } else {
@@ -65,13 +68,14 @@ router.post('/single', function (req, res) {
 
 
 router.post('/getSubmittedReports', function (req, res) {
+    let con = db.getConnection();
     if (typeof req.body.dateVal !== 'undefined' && typeof req.body.status !== 'undefined') {
-        var callingBy = "admin";
-        var response = [];
-        dailyReport.getDailyReportById(null, req.body.dateVal,req.body.status, callingBy, function (err, rows) {
+        let callingBy = "admin";
+        let response = [];
+        dailyReport.getDailyReportById(con,null, req.body.dateVal,req.body.status, callingBy, function (err, rows) {
             if (!err) {
                 res.setHeader('Content-Type', 'application/json');
-                if (rows.length != 0) {
+                if (rows.length !== 0) {
                     response.push({'status': 'success', 'data': rows})
                     res.status(200).send(response);
                 } else {
@@ -91,12 +95,13 @@ router.post('/getSubmittedReports', function (req, res) {
 });
 
 router.post('/getAll', function (req, res) {
+    let con = db.getConnection();
     if (typeof req.body.dateVal !== 'undefined') {
-        dailyReport.getDailyReportById(req.body.id, req.body.dateVal, null, function (err, rows) {
+        dailyReport.getDailyReportById(con, req.body.id, req.body.dateVal, null, function (err, rows) {
             if (!err) {
-                var response = [];
+                let response = [];
                 res.setHeader('Content-Type', 'application/json');
-                if (rows.length != 0) {
+                if (rows.length !== 0) {
                     response.push({'status': 'success', 'data': rows})
                     res.status(200).send(response);
                 } else {
@@ -116,12 +121,13 @@ router.post('/getAll', function (req, res) {
 });
 
 router.post('/update/status', function (req, res) {
-    var response = [];
+    let con = db.getConnection();
+    let response = [];
     if (typeof req.body.id !== 'undefined' &&
         typeof req.body.status !== 'undefined') {
-        dailyReport.updateReportStatus(req.body, function (err, result) {
+        dailyReport.updateReportStatus(con, req.body, function (err, result) {
             if (!err) {
-                if (result.affectedRows != 0) {
+                if (result.affectedRows !== 0) {
                     response.push({'status': 'success'});
                 } else {
                     response.push({'status': 'failure'});
@@ -140,7 +146,8 @@ router.post('/update/status', function (req, res) {
 });
 
 router.post('/add', function (req, res) {
-    var response = [];
+    let con = db.getConnection();
+    let response = [];
     if (
         typeof req.body.createdDate !== 'undefined' &&
         typeof req.body.lineId !== 'undefined' &&
@@ -158,13 +165,12 @@ router.post('/add', function (req, res) {
         typeof req.body.charges !== 'undefined' &&
         typeof req.body.createdUserId !== 'undefined'
     ) {
-        var createdDate = req.body.createdDate,
+        let createdDate = req.body.createdDate,
             shift = req.body.shift,
             lineId = req.body.lineId,
             equipmentId = req.body.equipmentId,
             breakDownStart = req.body.breakDownStart,
             breakDownFinish = req.body.breakDownFinish,
-            machineDownStart = req.body.machineDownStart,
             machineDownStart = req.body.machineDownStart,
             machineDownFinish = req.body.machineDownFinish,
             problem = req.body.problem,
@@ -176,10 +182,10 @@ router.post('/add', function (req, res) {
             charges = req.body.charges;
         userId = req.body.createdUserId;
 
-        dailyReport.addReport(req.body, function (err, result) {
+        dailyReport.addReport(con, req.body, function (err, result) {
             if (!err) {
 
-                if (result.affectedRows != 0) {
+                if (result.affectedRows !== 0) {
                     response.push({'status': 'success'});
                 } else {
                     response.push({'status': 'failure'});
@@ -199,7 +205,8 @@ router.post('/add', function (req, res) {
 });
 
 router.post('/edit', function (req, res) {
-    var response = [];
+    let response = [];
+    let con = db.getConnection();
     if (
         typeof req.body.id !== 'undefined' &&
         typeof req.body.shift !== 'undefined' &&
@@ -217,7 +224,7 @@ router.post('/edit', function (req, res) {
         typeof req.body.completedDate !== 'undefined' &&
         typeof req.body.charges !== 'undefined'
     ) {
-        var id = req.body.id,
+        let id = req.body.id,
             lineId = req.body.lineId,
             shift = req.body.shift,
             equipmentId = req.body.equipmentId,
@@ -233,10 +240,10 @@ router.post('/edit', function (req, res) {
             completedDate = req.body.completedDate,
             charges = req.body.charges;
 
-        dailyReport.updateReport(req.body, function (err, result) {
+        dailyReport.updateReport(con, req.body, function (err, result) {
             if (!err) {
 
-                if (result.affectedRows != 0) {
+                if (result.affectedRows !== 0) {
                     response.push({'status': 'success'});
                 } else {
                     response.push({'status': 'failure'});
@@ -258,8 +265,9 @@ router.post('/edit', function (req, res) {
 router.post('/processReports', function (req, res) {
         let response = [];
         let reportIdArray = [];
+    let con = db.getConnection();
         if (typeof req.body.dateVal !== 'undefined') {
-            dailyReport.getDailyReportsByDateAndStatus(req.body.dateVal, 2 , async function (err, rows) {
+            dailyReport.getDailyReportsByDateAndStatus(con, req.body.dateVal, 2 , async function (err, rows) {
                 if (!err) {
                     res.setHeader('Content-Type', 'application/json');
                     if (rows.length !== 0) {
@@ -272,7 +280,8 @@ router.post('/processReports', function (req, res) {
                             params.push('?');
                         }
                         let d = new Date();
-                        let fileName = d.getDate() + "-" + d.getMonth() + "-" + d.getFullYear() + "-report.xlsx";
+                        let month = Number(d.getMonth())+1;
+                        let fileName = d.getDate() + "-" + month + "-" + d.getFullYear() + "-report.xlsx";
                         try {
                             let xls = json2xls(rows);
 
@@ -299,7 +308,7 @@ router.post('/processReports', function (req, res) {
                         try {
                             await sendMail('./daily-reports/' + fileName);
                             console.log(`Mail has been sent successfully.`);
-                            dailyReport.updateReportStatusWithDate(req.body.dateVal,4, reportIdArray, params, function (err, result){
+                            dailyReport.updateReportStatusWithDate(con, req.body.dateVal,4, reportIdArray, params, function (err, result){
                                 if (!err) {
                                     if (result.affectedRows !== 0) {
                                         response.push({

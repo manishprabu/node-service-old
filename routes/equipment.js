@@ -1,14 +1,19 @@
-var express = require('express');
-var router = express.Router();
-var Equipment = require('../models/equipment');
+let express = require('express');
+let router = express.Router();
+let Equipment = require('../models/equipment');
+let db = require('../dbconn');
 
-
-router.get('/equipments', function (req, res) {
-	Equipment.getAllEquipment(function (err, rows) {
+router.post('/equipments', function (req, res) {
+	let con = db.getConnection();
+	let lineId = '';
+	if(typeof req.body.lineId !== ''){
+		lineId = req.body.lineId
+	}
+	Equipment.getAllEquipment(con, lineId, function (err, rows) {
 		if (!err) {
-			var response = [];
+			let response = [];
 			res.setHeader('Content-Type', 'application/json');
-			if (rows.length != 0) {
+			if (rows.length !== 0) {
 				response.push({ 'status': 'success', 'data': rows });
 				res.status(200).send(response);
 			} else {
@@ -23,20 +28,19 @@ router.get('/equipments', function (req, res) {
 });
 
 router.post('/add', function (req, res) {
-	var response = [];
+    let con = db.getConnection();
+	let response = [];
 
 	if (
-		typeof req.body.name !== 'undefined' &&
 		typeof req.body.equipmentNo !== 'undefined' &&
-		typeof req.body.lineId !== 'undefined' &&
-		typeof req.body.personId !== 'undefined'
+		typeof req.body.lineId !== 'undefined'
 	) {
-		Equipment.addEquipment(req.body, function (err, result) {
-			var response = [];
+		Equipment.addEquipment(con, req.body, function (err, result) {
+			let response = [];
 			//console.log(req.body);
 			if (!err) {
 	
-				if (result.affectedRows != 0) {
+				if (result.affectedRows !== 0) {
 					response.push({ 'status': 'success' });
 				} else {
 					response.push({ 'status': 'failure' });
@@ -57,20 +61,19 @@ router.post('/add', function (req, res) {
 
 
 router.post('/edit', function (req, res) {
-	var response = [];
+    let con = db.getConnection();
+	let response = [];
 	if (
 		typeof req.body.id !== 'undefined' &&
-		typeof req.body.name !== 'undefined' &&
 		typeof req.body.equipmentNo !== 'undefined' &&
-		typeof req.body.lineId !== 'undefined' &&
-		typeof req.body.personId !== 'undefined'
+		typeof req.body.lineId !== 'undefined'
 	) {
-		Equipment.updateEquipment(req.body, function (err, result) {
-			var response = [];
+		Equipment.updateEquipment(con, req.body, function (err, result) {
+			let response = [];
 			//console.log(req.body);
 			if (!err) {
 	
-				if (result.affectedRows != 0) {
+				if (result.affectedRows !== 0) {
 					response.push({ 'status': 'success' });
 				} else {
 					response.push({ 'status': 'failure' });
@@ -90,13 +93,14 @@ router.post('/edit', function (req, res) {
 });
 
 router.delete('/delete/:id', function (req, res) {
-	var id = req.params.id;
+    let con = db.getConnection();
+	let id = req.params.id;
 
-	Equipment.deleteEquipment(id, function (err, result) {
+	Equipment.deleteEquipment(con, id, function (err, result) {
 		if (!err) {
-            var response = [];
+            let response = [];
 
-            if (result.affectedRows != 0) {
+            if (result.affectedRows !== 0) {
                 response.push({ 'status': 'success' });
             } else {
                 response.push({ 'status': 'failure' });

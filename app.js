@@ -4,7 +4,7 @@ var cors = require('cors')
 connection = require('./dbconn');
 var routes = require('./routes/index');
 var lines = require('./routes/line');
-var persons = require('./routes/person');
+var users = require('./routes/user');
 var equipments = require('./routes/equipment');
 var dailyReports = require('./routes/dailyReport');
 // Setup express
@@ -15,7 +15,7 @@ app.use(parser.urlencoded({ extended: false }));
 app.set('port', process.env.PORT || 5000);
 app.use('/', routes);
 app.use('/line', lines);
-app.use('/person', persons);
+app.use('/user', users);
 app.use('/equipment', equipments);
 app.use('/dailyreport', dailyReports);
 
