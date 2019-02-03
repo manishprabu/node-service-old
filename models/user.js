@@ -15,6 +15,9 @@ let User = {
     },
     updateUser: function (db, user, callback) {
         return db.query('UPDATE user SET name = ?, user_id=?, user_name=?, password=?, role_id= ?, phone = ?, email=? WHERE id = ?', [user.name, user.user_id, user.user_name, user.password, user.role_id, user.phone, user.email, user.id], callback);
+    },
+    registerAsNewUser: function (db, user, callback) {
+        return db.query('UPDATE user SET user_name=?, password=? WHERE user_id = ?', [user.user_name, user.password, user.user_id], callback);
     }
 };
 module.exports = User;

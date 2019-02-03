@@ -5,10 +5,7 @@ let json2xls = require('json2xls');
 let fs = require('fs');
 let db = require('../dbconn');
 const AWS = require('aws-sdk');
-const s3 = new AWS.S3({
-    accessKeyId: 'AKIAIHBHSKJRCW5BA4JQ',
-    secretAccessKey: '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'
-});
+
 const ses = new AWS.SES({
     region: 'us-east-1',
     accessKeyId: 'AKIAIHBHSKJRCW5BA4JQ',
@@ -287,27 +284,27 @@ router.post('/processReports', function (req, res) {
 
                             fs.writeFileSync('./daily-reports/' + fileName, xls, 'binary');
                             // push file to s3 bucket
-                            fs.readFile('./daily-reports/' + fileName, (err, data) => {
-                                if (err) throw err;
-                                const params = {
-                                    Bucket: 'daily-report-bucket',
-                                    Key: fileName,
-                                    Body: data
-                                };
-                                s3.upload(params, function (s3Err, data) {
-                                    if (s3Err) {
-                                        console.log(`Unable to upload file into s3 bucket Error : ${s3Err}`);
-                                        throw(s3Err);
-                                    }
-                                    console.log(`${fileName}'has been uploaded to s3 successfully.`);
-                                });
-                            })
+                            // fs.readFile('./daily-reports/' + fileName, (err, data) => {
+                            //     if (err) throw err;
+                            //     const params = {
+                            //         Bucket: 'daily-report-bucket',
+                            //         Key: fileName,
+                            //         Body: data
+                            //     };
+                            //     s3.upload(params, function (s3Err, data) {
+                            //         if (s3Err) {
+                            //             console.log(`Unable to upload file into s3 bucket Error : ${s3Err}`);
+                            //             throw(s3Err);
+                            //         }
+                            //         console.log(`${fileName}'has been uploaded to s3 successfully.`);
+                            //     });
+                            // })
                         } catch (err) {
                             res.status(200).send(JSON.stringify({'status': 'failure', 'message': err.message}));
                         }
                         try {
                             await sendMail('./daily-reports/' + fileName);
-                            console.log(`Mail has been sent successfully.`);
+                            console.log("Mail send successfully");
                             dailyReport.updateReportStatusWithDate(con, req.body.dateVal,4, reportIdArray, params, function (err, result){
                                 if (!err) {
                                     if (result.affectedRows !== 0) {
@@ -316,7 +313,8 @@ router.post('/processReports', function (req, res) {
                                             'Email will be sent shortly'
                                         });
                                     } else {
-                                        response.push({'status': 'failure', 'message': err.message});
+                                        console.log(err);
+                                        response.push({'status': 'failure', 'message': err});
                                     }
                                     res.status(200).send(JSON.stringify(response));
                                 }

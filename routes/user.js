@@ -64,6 +64,26 @@ router.post('/edit', function (req, res) {
     });
 });
 
+router.post('/registerUser', function (req, res) {
+    let con = db.getConnection();
+    User.registerAsNewUser(con, req.body, function (err, result) {
+        var response = [];
+        console.log(req.body);
+        if (!err) {
+            if (result.affectedRows != 0) {
+                response.push({ 'status': 'success', 'message' : "Used added successfully" });
+            } else {
+                response.push({ 'status': 'failure', 'message' : "Given employee id not found" });
+            }
+
+            res.setHeader('Content-Type', 'application/json');
+            res.status(200).send(JSON.stringify(response));
+        } else {
+            res.status(400).send(err);
+        }
+    });
+});
+
 router.delete('/delete/:id', function (req, res) {
     let con = db.getConnection();
     var id = req.params.id;
