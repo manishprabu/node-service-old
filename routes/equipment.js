@@ -1,18 +1,17 @@
 let express = require('express');
 let router = express.Router();
 let Equipment = require('../models/equipment');
-let db = require('../dbconn');
 
 router.post('/equipments', function (req, res) {
-	let con = db.getConnection();
 	let lineId = '';
 	if(typeof req.body.lineId !== ''){
 		lineId = req.body.lineId
 	}
-	Equipment.getAllEquipment(con, lineId, function (err, rows) {
+	Equipment.getAllEquipment( lineId, function (err, rows) {
 		if (!err) {
 			let response = [];
 			res.setHeader('Content-Type', 'application/json');
+			console.log(JSON.stringify(rows))
 			if (rows.length !== 0) {
 				response.push({ 'status': 'success', 'data': rows });
 				res.status(200).send(response);
@@ -28,14 +27,13 @@ router.post('/equipments', function (req, res) {
 });
 
 router.post('/add', function (req, res) {
-    let con = db.getConnection();
 	let response = [];
 
 	if (
 		typeof req.body.equipmentNo !== 'undefined' &&
 		typeof req.body.lineId !== 'undefined'
 	) {
-		Equipment.addEquipment(con, req.body, function (err, result) {
+		Equipment.addEquipment( req.body, function (err, result) {
 			let response = [];
 			//console.log(req.body);
 			if (!err) {
@@ -61,14 +59,13 @@ router.post('/add', function (req, res) {
 
 
 router.post('/edit', function (req, res) {
-    let con = db.getConnection();
 	let response = [];
 	if (
 		typeof req.body.id !== 'undefined' &&
 		typeof req.body.equipmentNo !== 'undefined' &&
 		typeof req.body.lineId !== 'undefined'
 	) {
-		Equipment.updateEquipment(con, req.body, function (err, result) {
+		Equipment.updateEquipment( req.body, function (err, result) {
 			let response = [];
 			//console.log(req.body);
 			if (!err) {
@@ -93,10 +90,9 @@ router.post('/edit', function (req, res) {
 });
 
 router.delete('/delete/:id', function (req, res) {
-    let con = db.getConnection();
 	let id = req.params.id;
 
-	Equipment.deleteEquipment(con, id, function (err, result) {
+	Equipment.deleteEquipment( id, function (err, result) {
 		if (!err) {
             let response = [];
 

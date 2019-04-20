@@ -1,7 +1,6 @@
 express  = require('express'),
 parser   = require('body-parser');
 var cors = require('cors')
-connection = require('./dbconn');
 var routes = require('./routes/index');
 var lines = require('./routes/line');
 var users = require('./routes/user');

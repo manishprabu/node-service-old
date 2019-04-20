@@ -16,8 +16,7 @@ let mailcomposer = require('mailcomposer');
 
 // Daily report
 router.get('/dailyreports', function (req, res) {
-    let con = db.getConnection();
-    dailyReport.getAllReports(con, function (err, rows) {
+    dailyReport.getAllReports( function (err, rows) {
         if (!err) {
             let response = [];
             res.setHeader('Content-Type', 'application/json');
@@ -36,11 +35,10 @@ router.get('/dailyreports', function (req, res) {
 
 // Daily report
 router.post('/single', function (req, res) {
-    let con = db.getConnection();
     if (typeof req.body.id !== 'undefined' &&
         typeof req.body.dateVal !== 'undefined') {
         let callingBy = "user";
-        dailyReport.getDailyReportById(con, req.body.id, req.body.dateVal,null, callingBy, function (err, rows) {
+        dailyReport.getDailyReportById( req.body.id, req.body.dateVal,null, callingBy, function (err, rows) {
             if (!err) {
                 let response = [];
                 res.setHeader('Content-Type', 'application/json');
@@ -65,11 +63,10 @@ router.post('/single', function (req, res) {
 
 
 router.post('/getSubmittedReports', function (req, res) {
-    let con = db.getConnection();
     if (typeof req.body.dateVal !== 'undefined' && typeof req.body.status !== 'undefined') {
         let callingBy = "admin";
         let response = [];
-        dailyReport.getDailyReportById(con,null, req.body.dateVal,req.body.status, callingBy, function (err, rows) {
+        dailyReport.getDailyReportById(null, req.body.dateVal,req.body.status, callingBy, function (err, rows) {
             if (!err) {
                 res.setHeader('Content-Type', 'application/json');
                 if (rows.length !== 0) {
@@ -92,9 +89,8 @@ router.post('/getSubmittedReports', function (req, res) {
 });
 
 router.post('/getAll', function (req, res) {
-    let con = db.getConnection();
     if (typeof req.body.dateVal !== 'undefined') {
-        dailyReport.getDailyReportById(con, req.body.id, req.body.dateVal, null, function (err, rows) {
+        dailyReport.getDailyReportById( req.body.id, req.body.dateVal, null, function (err, rows) {
             if (!err) {
                 let response = [];
                 res.setHeader('Content-Type', 'application/json');
@@ -118,11 +114,10 @@ router.post('/getAll', function (req, res) {
 });
 
 router.post('/update/status', function (req, res) {
-    let con = db.getConnection();
     let response = [];
     if (typeof req.body.id !== 'undefined' &&
         typeof req.body.status !== 'undefined') {
-        dailyReport.updateReportStatus(con, req.body, function (err, result) {
+        dailyReport.updateReportStatus( req.body, function (err, result) {
             if (!err) {
                 if (result.affectedRows !== 0) {
                     response.push({'status': 'success'});
@@ -143,7 +138,6 @@ router.post('/update/status', function (req, res) {
 });
 
 router.post('/add', function (req, res) {
-    let con = db.getConnection();
     let response = [];
     if (
         typeof req.body.createdDate !== 'undefined' &&
@@ -179,7 +173,7 @@ router.post('/add', function (req, res) {
             charges = req.body.charges;
         userId = req.body.createdUserId;
 
-        dailyReport.addReport(con, req.body, function (err, result) {
+        dailyReport.addReport( req.body, function (err, result) {
             if (!err) {
 
                 if (result.affectedRows !== 0) {
@@ -203,7 +197,6 @@ router.post('/add', function (req, res) {
 
 router.post('/edit', function (req, res) {
     let response = [];
-    let con = db.getConnection();
     if (
         typeof req.body.id !== 'undefined' &&
         typeof req.body.shift !== 'undefined' &&
@@ -237,7 +230,7 @@ router.post('/edit', function (req, res) {
             completedDate = req.body.completedDate,
             charges = req.body.charges;
 
-        dailyReport.updateReport(con, req.body, function (err, result) {
+        dailyReport.updateReport( req.body, function (err, result) {
             if (!err) {
 
                 if (result.affectedRows !== 0) {
@@ -262,9 +255,8 @@ router.post('/edit', function (req, res) {
 router.post('/processReports', function (req, res) {
         let response = [];
         let reportIdArray = [];
-    let con = db.getConnection();
         if (typeof req.body.dateVal !== 'undefined') {
-            dailyReport.getDailyReportsByDateAndStatus(con, req.body.dateVal, 2 , async function (err, rows) {
+            dailyReport.getDailyReportsByDateAndStatus( req.body.dateVal, 2 , async function (err, rows) {
                 if (!err) {
                     res.setHeader('Content-Type', 'application/json');
                     if (rows.length !== 0) {

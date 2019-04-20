@@ -1,20 +1,22 @@
+const db = require("../manageDb");
+
 let Line = {
 
-    getAllLines: async function (db, callback) {
-        return await db.query("Select * from line", callback);
+    getAllLines: async function (callback) {
+        return await db.executeQuery("Select * from line", callback);
     },
-    getLineById: function (db, id, callback) {
-        return db.query("select * from line where id=?", [id], callback);
+    getLineById: async function (id, callback) {
+        return await db.executeQuery(`select * from line where id=${id}`, callback);
     },
-    addLine: function (db, line, callback) {
-        return db.query('INSERT INTO line (name) VALUES (?)', [line.name], callback);
-        //return db.query("insert into task(Id,Title,Status) values(?,?,?)",[Task1.Id,Task1.Title,Task1.Status],callback);
+    addLine: async function (line, callback) {
+        console.log(line.name);
+        return await db.executeQuery(`INSERT INTO line (name) VALUES ('${line.name}')`, callback);
     },
-    deleteLine: function (db, id, callback) {
-        return db.query("DELETE FROM line where Id=?", [id], callback);
+    deleteLine: async function (id, callback) {
+        return await db.executeQuery(`DELETE FROM line where Id=${id}`, callback);
     },
-    updateLine: function (db, line, callback) {
-        return db.query('UPDATE line SET name = ? WHERE id = ?', [line.name, line.id], callback);
+    updateLine: async function (line, callback) {
+        return await db.executeQuery(`UPDATE line SET name = '${line.name}' WHERE id = ${line.id}`, callback);
     },
 };
 module.exports = Line;

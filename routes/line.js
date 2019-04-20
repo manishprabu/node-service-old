@@ -1,10 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var Line = require('../models/line');
-var db = require('../dbconn');
 router.get('/lines', async function (req, res, next) {
-    let con = db.getConnection();
-    await Line.getAllLines(con, function (err, rows) {
+    await Line.getAllLines(function (err, rows) {
         if (!err) {
             var response = [];
             res.setHeader('Content-Type', 'application/json');
@@ -22,8 +20,7 @@ router.get('/lines', async function (req, res, next) {
 });
 
 router.post('/add', function (req, res, next) {
-    let con = db.getConnection();
-    Line.addLine(con, req.body, function (err, result) {
+    Line.addLine(req.body, function (err, result) {
         var response = [];
         //console.log(req.body);
         if (!err) {
@@ -43,8 +40,7 @@ router.post('/add', function (req, res, next) {
 });
 
 router.post('/edit', function (req, res) {
-    let con = db.getConnection();
-    Line.updateLine(con, req.body, function (err, result) {
+    Line.updateLine(req.body, function (err, result) {
         var response = [];
         //console.log(req.body);
         if (!err) {
@@ -64,9 +60,8 @@ router.post('/edit', function (req, res) {
 });
 
 router.delete('/delete/:id', function (req, res) {
-    let con = db.getConnection();
-    var id = req.params.id;
-    Line.deleteLine(con, id, function(err,result){
+	let id = req.params.id;
+    Line.deleteLine(id, function(err,result){
         if (!err) {
             var response = [];
 
