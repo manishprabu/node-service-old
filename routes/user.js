@@ -20,6 +20,7 @@ router.get('/users', function (req, res) {
 });
 
 router.post('/add', function (req, res, next) {
+    console.log(JSON.stringify(req.body));
     User.addUser(req.body, function (err, result) {
         var response = [];
         //console.log(req.body);
@@ -65,7 +66,7 @@ router.post('/registerUser', function (req, res) {
         console.log(req.body);
         if (!err) {
             if (result.affectedRows != 0) {
-                response.push({ 'status': 'success', 'message' : "Used added successfully" });
+                response.push({ 'status': 'success', 'message' : "User added successfully" });
             } else {
                 response.push({ 'status': 'failure', 'message' : "Given employee id not found" });
             }

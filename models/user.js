@@ -9,17 +9,21 @@ let User = {
         return db.executeQuery("SELECT * FROM user where id=?", [id], callback);
     },
     addUser: function (user, callback) {
-        return db.executeQuery('INSERT INTO user (name, user_id, role_id, phone, email) VALUES (?, ?,?,?,?)', [user.name, user.userId, user.roleId, user.phone, user.email], callback);
+        let query = `INSERT INTO user (user_name, password, name, user_id, role_id, phone, email) VALUES ('','','${user.name}', '${user.userId}','${user.roleId}', '${user.phone}', '${user.email}')`;
+        console.log("insert query" + query);
+        return db.executeQuery(query, callback);
         //return db.exceuteQuery("insert into task(Id,Title,Status) values(?,?,?)",[Task1.Id,Task1.Title,Task1.Status],callback);
     },
     deleteUser: function (id, callback) {
-        return db.executeQuery("DELETE FROM user where id=?", [id], callback);
+        return db.executeQuery(`DELETE FROM user where id=${id}`, callback);
     },
     updateUser: function (user, callback) {
-        return db.executeQuery('UPDATE user SET name = ?, user_id=?, user_name=?, password=?, role_id= ?, phone = ?, email=? WHERE id = ?', [user.name, user.user_id, user.user_name, user.password, user.role_id, user.phone, user.email, user.id], callback);
+        let query = `UPDATE user SET name = '${user.name}', user_id='${user.userId}', user_name='${user.userName}', password='${user.password}', role_id= '${user.roleId}', phone = '${user.phone}', email='${user.email}' WHERE id = ${user.id}`;
+        console.log("update query" + query);
+        return db.executeQuery(query, callback);
     },
     registerAsNewUser: function (user, callback) {
-        return db.executeQuery('UPDATE user SET user_name=?, password=? WHERE user_id = ?', [user.user_name, user.password, user.user_id], callback);
+        return db.executeQuery(`UPDATE user SET user_name='${user.userName}', password='${user.password}' WHERE user_id = '${user.userId}'`, callback);
     }
 };
 module.exports = User;

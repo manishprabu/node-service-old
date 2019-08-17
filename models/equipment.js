@@ -5,8 +5,8 @@ let Equipment = {
     getAllEquipment: async function (lineId, callback) {
         let query = '';
         if (lineId !== '') {
-            query = 'SELECT equipment.id AS `equipment_id`,equipment.equipment_no AS `equipment_no`,equipment.line_id AS `line_id`,line.name AS `line_name` FROM service.equipment JOIN line on line.id = equipment.line_id where equipment.line_id = ?';
-            return await db.executeQuery(query, [lineId], callback);
+            query = "SELECT equipment.id AS `equipment_id`,equipment.equipment_no AS `equipment_no`,equipment.line_id AS `line_id`,line.name AS `line_name` FROM service.equipment JOIN line on line.id = equipment.line_id where equipment.line_id ="+ lineId;
+            return await db.executeQuery(query, callback);
         } else {
             query = 'SELECT equipment.id AS `equipment_id`,equipment.equipment_no AS `equipment_no`,equipment.line_id AS `line_id`,line.name AS `line_name` FROM service.equipment JOIN line on line.id = equipment.line_id';
             return await db.executeQuery(query, callback);

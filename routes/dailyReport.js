@@ -252,14 +252,15 @@ router.post('/edit', function (req, res) {
     }
 });
 
-router.post('/processReports', function (req, res) {
+router.post('/processReports', async function (req, res) {
         let response = [];
         let reportIdArray = [];
         if (typeof req.body.dateVal !== 'undefined') {
-            dailyReport.getDailyReportsByDateAndStatus( req.body.dateVal, 2 , async function (err, rows) {
+              await dailyReport.getDailyReportsByDateAndStatus( req.body.dateVal, 2 ,async function (err, rows) {
                 if (!err) {
                     res.setHeader('Content-Type', 'application/json');
-                    if (rows.length !== 0) {
+                    console.log("row : " + JSON.stringify(rows))
+                    if (rows.count !== 0 && rows.count !== undefined) {
                         for(let i=0; i<rows.length; i++){
                             reportIdArray.push(rows[i].id);
                         }
@@ -297,7 +298,7 @@ router.post('/processReports', function (req, res) {
                         try {
                             await sendMail('./daily-reports/' + fileName);
                             console.log("Mail send successfully");
-                            dailyReport.updateReportStatusWithDate(con, req.body.dateVal,4, reportIdArray, params, function (err, result){
+                            dailyReport.updateReportStatusWithDate(req.body.dateVal,4, reportIdArray, params, function (err, result){
                                 if (!err) {
                                     if (result.affectedRows !== 0) {
                                         response.push({

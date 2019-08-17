@@ -3,10 +3,10 @@ var mysql = require('mysql');
 // Initialize pool
 var pool      =    mysql.createPool({
     connectionLimit : 10,
-    host     : 'hyundai-db-instance.cwzsmkxmwszt.us-east-1.rds.amazonaws.com',
+    host     : 'cloud-db-instance.ckyvnvfapxi1.us-east-1.rds.amazonaws.com',
     port: "3306",
-    user     : 'mani',
-    password : 'smilingmani',
+    user     : 'admin',
+    password : 'admin1234',
     database : 'service',
     debug    :  false
 });    
