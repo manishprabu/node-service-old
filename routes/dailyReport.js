@@ -8,8 +8,8 @@ const AWS = require('aws-sdk');
 
 const ses = new AWS.SES({
     region: 'us-east-1',
-    accessKeyId: 'AKIAIHBHSKJRCW5BA4JQ',
-    secretAccessKey: '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'
+    accessKeyId: process.env.ACCESS_KEY,
+    secretAccessKey: process.env.SECRET_KEY
 });
 let mailcomposer = require('mailcomposer');
 
@@ -252,17 +252,16 @@ router.post('/edit', function (req, res) {
     }
 });
 
-router.post('/processReports', async function (req, res) {
+router.post('/processReports', function (req, res) {
         let response = [];
         let reportIdArray = [];
         if (typeof req.body.dateVal !== 'undefined') {
-              await dailyReport.getDailyReportsByDateAndStatus( req.body.dateVal, 2 ,async function (err, rows) {
+            dailyReport.getDailyReportsByDateAndStatus( req.body.dateVal, 2 , async function (err, result) {
                 if (!err) {
                     res.setHeader('Content-Type', 'application/json');
-                    console.log("row : " + JSON.stringify(rows))
-                    if (rows.count !== 0 && rows.count !== undefined) {
-                        for(let i=0; i<rows.length; i++){
-                            reportIdArray.push(rows[i].id);
+                    if (result.rows.length !== 0) {
+                        for(let i=0; i<result.rows.length; i++){
+                            reportIdArray.push(result.rows[i].id);
                         }
                         let keysCount = reportIdArray.length;
                         let params = [];
@@ -273,7 +272,7 @@ router.post('/processReports', async function (req, res) {
                         let month = Number(d.getMonth())+1;
                         let fileName = d.getDate() + "-" + month + "-" + d.getFullYear() + "-report.xlsx";
                         try {
-                            let xls = json2xls(rows);
+                            let xls = json2xls(result.rows);
 
                             fs.writeFileSync('./daily-reports/' + fileName, xls, 'binary');
                             // push file to s3 bucket

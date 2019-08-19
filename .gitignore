@@ -3395,3 +3395,4 @@
 /.idea/vcs.xml
 /.idea/workspace.xml
 /uploadFile.js
+/.env
