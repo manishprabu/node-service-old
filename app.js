@@ -11,7 +11,7 @@ var app = express();
 app.use(parser.json());
 app.use(cors());
 app.use(parser.urlencoded({ extended: false }));
-app.set('port', process.env.PORT || 5000);
+app.set('port', process.env.PORT || 8080);
 app.use('/', routes);
 app.use('/line', lines);
 app.use('/user', users);
