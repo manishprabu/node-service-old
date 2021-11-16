@@ -10,7 +10,7 @@
   "author": "Manikandan",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.377.0",
+    "aws-sdk": "^2.814.0",
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "dotenv": "^8.1.0",
